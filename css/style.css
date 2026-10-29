@@ -649,6 +649,11 @@ COMO FUNCIONA
 /* =========================================================
 FOOTER
 ========================================================= */
+div.container {
+  display: flex;
+  background: #0B1E33;
+}
+
 footer {
   background: var(--ink-900);
   color: rgba(255, 255, 255, .7);
@@ -656,6 +661,8 @@ footer {
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr;
   gap: 40px;
+  margin: auto;
+  max-width: var(--wrap);
 }
 footer .logo {
   background: none;
