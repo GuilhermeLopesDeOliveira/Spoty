@@ -120,20 +120,25 @@ function usarLocalizacao() {
 }
 
 // ==========================================
-// MAPA REAL (Leaflet + OpenStreetMap)
+// MAPA REAL (Waze Live Map, via iFrame)
 // ==========================================
 
-let mapaSpoty = null;
-let marcadorUsuario = null;
+let mapaSpoty = null; // iframe do Waze dentro de #mapaReal
 
 // Centro padrão usado enquanto a localização real não é obtida
 const CENTRO_PADRAO = { lat: -23.5505, lng: -46.6333 }; // São Paulo, SP
 
-// Limites aproximados do território brasileiro (o mapa não sai dessa área)
-const LIMITES_BRASIL = L.latLngBounds(
-  L.latLng(-34.0, -74.5), // sudoeste
-  L.latLng(5.5, -32.0)    // nordeste
-);
+// Zoom do Waze vai de 3 a 17 (17 é o mais próximo)
+const ZOOM_PADRAO = 15;
+const ZOOM_PRECISO = 17;
+
+// Limites aproximados do território brasileiro
+const LIMITES_BRASIL = {
+  sul: -34.0,
+  oeste: -74.5,
+  norte: 5.5,
+  leste: -32.0
+};
 
 // Garante que a coordenada usada fique dentro do Brasil; senão, usa o centro padrão
 function garantirCoordenadaNoBrasil(lat, lng) {
@@ -141,58 +146,48 @@ function garantirCoordenadaNoBrasil(lat, lng) {
     return CENTRO_PADRAO;
   }
 
-  if (!LIMITES_BRASIL.contains([lat, lng])) {
+  const dentroDoBrasil =
+    lat >= LIMITES_BRASIL.sul && lat <= LIMITES_BRASIL.norte &&
+    lng >= LIMITES_BRASIL.oeste && lng <= LIMITES_BRASIL.leste;
+
+  if (!dentroDoBrasil) {
     return CENTRO_PADRAO;
   }
 
   return { lat, lng };
 }
 
-// Corrige o tamanho do mapa depois que o card já tem suas dimensões finais
-// (evita o bug do Leaflet "vazar" da área quando o container muda de tamanho)
-function corrigirTamanhoDoMapa() {
-  if (!mapaSpoty) {
-    return;
-  }
-  mapaSpoty.invalidateSize();
+// Monta a URL do Live Map do Waze para uma coordenada (pin=1 coloca um pino no centro)
+function montarUrlWaze(lat, lng, zoom) {
+  return "https://embed.waze.com/iframe?zoom=" + zoom +
+    "&lat=" + lat +
+    "&lon=" + lng +
+    "&pin=1";
 }
 
-// Cria o mapa real, restrito ao território brasileiro
+// Cria o iframe do Waze dentro da área do mapa
 function iniciarMapaReal(lat, lng) {
   const mapaEl = document.getElementById("mapaReal");
 
-  if (!mapaEl || typeof L === "undefined") {
+  if (!mapaEl) {
     return;
   }
 
   const coordenada = garantirCoordenadaNoBrasil(lat, lng);
 
-  mapaSpoty = L.map("mapaReal", {
-    zoomControl: false,
-    maxBounds: LIMITES_BRASIL,
-    maxBoundsViscosity: 1.0,
-    minZoom: 4,
-    worldCopyJump: false
-  }).setView([coordenada.lat, coordenada.lng], 15);
+  mapaSpoty = document.createElement("iframe");
+  mapaSpoty.title = "Mapa Waze com vagas próximas";
+  mapaSpoty.loading = "lazy";
+  mapaSpoty.referrerPolicy = "no-referrer-when-downgrade";
+  mapaSpoty.src = montarUrlWaze(coordenada.lat, coordenada.lng, ZOOM_PADRAO);
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-    maxZoom: 19,
-    noWrap: true,
-    subdomains: "abcd",
-    attribution: "© OpenStreetMap © CARTO"
-  }).addTo(mapaSpoty);
-
-  centralizarMapa(coordenada.lat, coordenada.lng, false, "São Paulo (local padrão)");
-
-  // Corrige eventuais problemas de dimensão logo após a criação
-  setTimeout(corrigirTamanhoDoMapa, 250);
-  setTimeout(corrigirTamanhoDoMapa, 800);
-  window.addEventListener("load", corrigirTamanhoDoMapa);
-  window.addEventListener("resize", corrigirTamanhoDoMapa);
-  window.addEventListener("pageshow", corrigirTamanhoDoMapa);
+  mapaEl.innerHTML = "";
+  mapaEl.appendChild(mapaSpoty);
 }
 
-// Move o mapa para uma coordenada exata (sempre dentro do Brasil) e marca o ponto preciso
+// Move o mapa para uma coordenada (sempre dentro do Brasil) e coloca o pino no centro.
+// O parâmetro "textoPopup" foi mantido só para não quebrar quem chama esta função;
+// o iFrame do Waze não permite popup personalizado.
 function centralizarMapa(lat, lng, comAnimacao, textoPopup) {
   const coordenada = garantirCoordenadaNoBrasil(lat, lng);
 
@@ -201,27 +196,12 @@ function centralizarMapa(lat, lng, comAnimacao, textoPopup) {
     return;
   }
 
-  mapaSpoty.setView([coordenada.lat, coordenada.lng], 17, { animate: comAnimacao });
-  corrigirTamanhoDoMapa();
-
-  // Remove o marcador anterior
-  if (marcadorUsuario) {
-    mapaSpoty.removeLayer(marcadorUsuario);
-  }
-
-  // Ponto exato na coordenada (círculo fixo, não um pino que "aponta" pra um lugar aproximado)
-  marcadorUsuario = L.circleMarker([coordenada.lat, coordenada.lng], {
-    radius: 8,
-    color: "#fff",
-    weight: 3,
-    fillColor: "var(--blue-500)",
-    fillOpacity: 1
-  })
-    .addTo(mapaSpoty)
-    .bindPopup(textoPopup || "Local buscado");
+  mapaSpoty.src = montarUrlWaze(coordenada.lat, coordenada.lng, ZOOM_PRECISO);
 }
 
-// Converte um endereço digitado em coordenadas reais (Nominatim/OpenStreetMap)
+// Converte um endereço digitado em coordenadas reais (Nominatim/OpenStreetMap).
+// O iFrame do Waze não tem busca de endereço por parâmetro, então continuamos
+// usando o Nominatim só para descobrir a latitude/longitude.
 function buscarCoordenadasEAtualizarMapa(endereco) {
   const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=" + encodeURIComponent(endereco);
 
@@ -247,14 +227,13 @@ function buscarCoordenadasEAtualizarMapa(endereco) {
     });
 }
 
-// Ao carregar a página, tenta centralizar o mapa na localização real do usuário
 // Ao carregar a página, o mapa abre no local padrão (São Paulo).
 // A localização real só é pedida quando o usuário clica em
 // "Usar minha localização" (função usarLocalizacao, mais acima).
 function iniciarLocalizacaoDoMapa() {
   const mapaEl = document.getElementById("mapaReal");
 
-  if (!mapaEl || typeof L === "undefined") {
+  if (!mapaEl) {
     return;
   }
 
