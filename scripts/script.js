@@ -177,6 +177,10 @@ function iniciarMapaReal(lat, lng) {
 
   mapaSpoty = document.createElement("iframe");
   mapaSpoty.title = "Mapa Waze com vagas próximas";
+  // Tamanho definido aqui para o iframe sempre preencher a área do mapa (sem depender do CSS)
+  mapaSpoty.width = "100%";
+  mapaSpoty.height = "100%";
+  mapaSpoty.style.cssText = "display:block;width:100%;height:100%;border:0;";
   mapaSpoty.loading = "lazy";
   mapaSpoty.referrerPolicy = "no-referrer-when-downgrade";
   mapaSpoty.src = montarUrlWaze(coordenada.lat, coordenada.lng, ZOOM_PADRAO);
