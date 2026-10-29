@@ -656,7 +656,7 @@ footer {
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr;
   gap: 40px;
-  max-width: var(--wrap);
+  
   margin: 0 auto;
 }
 footer .logo {
