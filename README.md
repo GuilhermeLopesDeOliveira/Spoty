@@ -114,7 +114,7 @@ Verifique as configurações necessárias nos arquivos responsáveis pela inicia
 - Os termos de uso e a política de privacidade precisam de revisão antes de serem considerados documentos finais.
 - A configuração do banco de dados e as políticas de acesso devem ser verificadas conforme a evolução do projeto.
 
-Para consultar problemas conhecidos, prioridades e decisões técnicas, acesse o arquivo [BACKLOG.md](BACKLOG.md).
+Para consultar problemas conhecidos, prioridades e decisões técnicas, acesse o arquivo [BackLog - Spoty.pdf](Informações%20adicionais/BackLog%20-%20Spoty.pdf)
 
 ## Próximos passos
 
