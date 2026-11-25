@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virar dono — Spoty</title>
+  <link rel="icon" type="image/png" href="../imagens/logo.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="page-transition active" aria-hidden="true"></div>
+
+  <header class="header">
+    <a class="logo" href="../index.html" onclick="transicaoPagina(event, this.href)">Spoty</a>
+    <nav>
+      <a href="../index.html#vagas">Buscar vagas</a>
+      <a href="../index.html#depoimentos">Depoimentos</a>
+      <a href="../index.html#como-funciona">Como funciona</a>
+    </nav>
+    <a href="../index.html" class="header-btn" onclick="transicaoPagina(event, this.href)">Voltar</a>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="section-heading">
+        <span class="eyebrow" id="donoEyebrow">Para donos</span>
+        <h1 id="donoTitulo">Virar dono</h1>
+        <p id="donoDica">Falta pouco para você cadastrar seu estacionamento no Spoty.</p>
+      </div>
+
+      <div class="editar-container">
+
+        <div class="dono-aviso">
+          Você continua com a <strong>mesma conta</strong>: o mesmo e-mail e o mesmo login.
+          Só precisamos de mais alguns dados para liberar o painel de dono.
+        </div>
+
+        <form id="donoForm" class="contato-form">
+
+          <!-- Tipo de documento -->
+          <div class="tipo-conta-bloco">
+            <p class="tipo-conta-titulo" id="tipoDocumentoTitulo">Você é pessoa física ou empresa?</p>
+            <div class="tipo-conta" role="radiogroup" aria-labelledby="tipoDocumentoTitulo">
+              <label class="tipo-opcao">
+                <input type="radio" name="tipoDocumento" value="cpf" checked>
+                <span class="tipo-opcao-corpo">
+                  <strong>Pessoa física</strong>
+                  <small>Uso o meu CPF.</small>
+                </span>
+              </label>
+              <label class="tipo-opcao">
+                <input type="radio" name="tipoDocumento" value="cnpj">
+                <span class="tipo-opcao-corpo">
+                  <strong>Empresa</strong>
+                  <small>Uso o CNPJ.</small>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="documento" id="documentoRotulo">CPF</label>
+            <input type="text" id="documento" name="documento" inputmode="numeric" placeholder="000.000.000-00" required>
+          </div>
+
+          <div class="form-group">
+            <label for="nomeEstabelecimento">Nome do estabelecimento</label>
+            <input type="text" id="nomeEstabelecimento" name="nomeEstabelecimento" maxlength="80" placeholder="Ex.: Estacionamento Central" required>
+          </div>
+
+          <label class="checkbox-group">
+            <input type="checkbox" id="confirmarDono" required>
+            <span>
+              Confirmo que sou responsável pelo estacionamento e concordo com os
+              <a href="termos-uso.html" onclick="transicaoPagina(event, this.href)">Termos de Uso</a>.
+            </span>
+          </label>
+
+          <button type="submit" class="cadastro-btn" id="donoBotao">Virar dono</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../scripts/supabaseClient.js"></script>
+  <script src="../scripts/virar-dono.js"></script>
+</body>
+</html>

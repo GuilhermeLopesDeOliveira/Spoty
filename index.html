@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spoty — Encontre vagas para estacionar</title>
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="icon" type="image/png" href="imagens/logo.png">
+  <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
-
-  <div class="page-transition active" aria-hidden="true"></div>
+  <!-- Se a tela continuar branca após a troca de caminhos, remova a classe 'active' da div abaixo para testar -->
+  <div class="page-transition" aria-hidden="true"></div>
 
   <header class="header">
     <a class="logo" href="#">Spoty</a>
@@ -20,10 +21,10 @@
     </nav>
     <!-- Botões principais do fluxo: aparecem quando ninguém está logado -->
     <div class="header-actions" id="headerActionsDeslogado">
-      <a href="./html/cadastro.html" class="btn-principal" onclick="transicaoPagina(event, this.href)">
+      <a href="html/cadastro.html" class="btn-principal" onclick="transicaoPagina(event, this.href)">
         Criar cadastro
       </a>
-      <a href="./html/login.html" class="btn-secundario" onclick="transicaoPagina(event, this.href)">
+      <a href="html/login.html" class="btn-secundario" onclick="transicaoPagina(event, this.href)">
         Entrar
       </a>
     </div>
@@ -38,10 +39,16 @@
           <div>
             <strong id="dropdownNome">—</strong>
             <span id="dropdownEmail">—</span>
+            <p class="selo-tipo" id="dropdownTipo" hidden></p>
           </div>
         </div>
 
-        <a href="./html/editar-informacoes.html" class="user-dropdown-item" onclick="transicaoPagina(event, this.href)">
+        <!-- Muda conforme o tipo da conta (o texto e o link são definidos no sessao.js) -->
+        <a href="html/virar-dono.html" id="menuDonoLink" class="user-dropdown-item" onclick="transicaoPagina(event, this.href)" hidden>
+          Quero ser dono
+        </a>
+
+        <a href="html/editar-informacoes.html" class="user-dropdown-item" onclick="transicaoPagina(event, this.href)">
           Editar informações
         </a>
         <button class="user-dropdown-item" onclick="sair()">Sair</button>
@@ -91,42 +98,48 @@
         <p>Milhares de motoristas já usam o Spoty para estacionar com mais tranquilidade todos os dias.</p>
       </div>
 
-      <div class="depoimentos">
-        <article class="depoimento">
-          <div class="depoimento-topo">
-            <div class="avatar">MA</div>
-            <div>
-              <strong>Marina Alves</strong>
-              <span>São Paulo, SP</span>
-            </div>
-          </div>
-          <div class="stars">★★★★★</div>
-          <p>"Encontrei uma vaga em menos de um minuto, bem perto do meu trabalho."</p>
-        </article>
+      <!-- Carrossel: os cards são criados pelo depoimentos.js -->
+      <div class="depoimentos-carrossel" id="depoimentosCarrossel" role="region" aria-roledescription="carrossel" aria-label="Depoimentos de usuários">
+        <button type="button" class="carrossel-seta carrossel-seta-esq" id="carrosselAnterior" aria-label="Depoimento anterior">&#8249;</button>
+        <div class="depoimentos-janela">
+          <div class="depoimentos-trilho" id="depoimentosTrilho"></div>
+        </div>
+        <button type="button" class="carrossel-seta carrossel-seta-dir" id="carrosselProximo" aria-label="Próximo depoimento">&#8250;</button>
+      </div>
 
-        <article class="depoimento">
-          <div class="depoimento-topo">
-            <div class="avatar">RS</div>
-            <div>
-              <strong>Rafael Souza</strong>
-              <span>Campinas, SP</span>
-            </div>
-          </div>
-          <div class="stars">★★★★★</div>
-          <p>"O app é simples e me ajuda a economizar tempo todos os dias."</p>
-        </article>
+      <!-- Deixar / editar o próprio depoimento -->
+      <div class="feedback-area">
+        <button type="button" class="btn-principal" id="feedbackAbrir">Deixar meu depoimento</button>
 
-        <article class="depoimento">
-          <div class="depoimento-topo">
-            <div class="avatar">JC</div>
-            <div>
-              <strong>Juliana Costa</strong>
-              <span>Santos, SP</span>
+        <form id="feedbackForm" class="feedback-form" hidden>
+          <div class="form-group">
+            <label id="feedbackNotaLabel">Sua nota</label>
+            <div class="feedback-nota" role="radiogroup" aria-labelledby="feedbackNotaLabel">
+              <button type="button" role="radio" aria-checked="false" data-nota="1" aria-label="1 estrela">★</button>
+              <button type="button" role="radio" aria-checked="false" data-nota="2" aria-label="2 estrelas">★</button>
+              <button type="button" role="radio" aria-checked="false" data-nota="3" aria-label="3 estrelas">★</button>
+              <button type="button" role="radio" aria-checked="false" data-nota="4" aria-label="4 estrelas">★</button>
+              <button type="button" role="radio" aria-checked="false" data-nota="5" aria-label="5 estrelas">★</button>
             </div>
           </div>
-          <div class="stars">★★★★★</div>
-          <p>"Uso toda semana. É prático e nunca mais tive dor de cabeça pra estacionar."</p>
-        </article>
+
+          <div class="form-group">
+            <label for="feedbackCidade">Cidade (opcional)</label>
+            <input type="text" id="feedbackCidade" maxlength="60" placeholder="Ex.: São Paulo, SP">
+          </div>
+
+          <div class="form-group">
+            <label for="feedbackMensagem">Seu depoimento</label>
+            <textarea id="feedbackMensagem" maxlength="280" rows="4" placeholder="Conte como o Spoty ajuda no seu dia a dia"></textarea>
+            <small id="feedbackContador">0/280</small>
+          </div>
+
+          <div class="feedback-acoes">
+            <button type="submit" class="btn-principal">Publicar</button>
+            <button type="button" class="btn-secundario" id="feedbackCancelar">Cancelar</button>
+            <button type="button" class="feedback-excluir" id="feedbackExcluir" hidden>Excluir meu depoimento</button>
+          </div>
+        </form>
       </div>
     </section>
 
@@ -157,17 +170,16 @@
     </section>
 
   </main>
-
   <footer>
     <div>
       <a class="logo" href="#">Spoty</a>
       <p>A maneira mais fácil de encontrar, estacionar e gerenciar vagas no Brasil.</p>
       <div class="app-badges">
         <a href="https://apps.apple.com" aria-label="Baixar na App Store" target="_blank" rel="noopener">
-          <img src="./imagens/badge-appstore.svg" alt="Download on the App Store">
+          <img src="imagens/badge-appstore.svg" alt="Download on the App Store">
         </a>
         <a href="https://play.google.com/store" aria-label="Disponível no Google Play" target="_blank" rel="noopener">
-          <img src="./imagens/badge-googleplay.svg" alt="Get it on Google Play">
+          <img src="imagens/badge-googleplay.svg" alt="Get it on Google Play">
         </a>
       </div>
     </div>
@@ -176,14 +188,14 @@
       <a href="#vagas" onclick="event.preventDefault(); scrollToSearch();">Buscar vagas</a>
       <a href="#depoimentos">Depoimentos</a>
       <a href="#como-funciona">Como funciona</a>
-      <a href="./html/empresas.html" onclick="transicaoPagina(event, this.href)">Para empresas</a>
+      <a href="html/empresas.html" onclick="transicaoPagina(event, this.href)">Para empresas</a>
     </div>
     <div>
       <h4>Suporte</h4>
-      <a href="./html/central-ajuda.html" onclick="transicaoPagina(event, this.href)">Central de ajuda</a>
-      <a href="./html/fale-conosco.html" onclick="transicaoPagina(event, this.href)">Fale conosco</a>
-      <a href="./html/termos-uso.html" onclick="transicaoPagina(event, this.href)">Termos de uso</a>
-      <a href="./html/privacidade.html" onclick="transicaoPagina(event, this.href)">Privacidade</a>
+      <a href="html/central-ajuda.html" onclick="transicaoPagina(event, this.href)">Central de ajuda</a>
+      <a href="html/fale-conosco.html" onclick="transicaoPagina(event, this.href)">Fale conosco</a>
+      <a href="html/termos-uso.html" onclick="transicaoPagina(event, this.href)">Termos de uso</a>
+      <a href="html/privacidade.html" onclick="transicaoPagina(event, this.href)">Privacidade</a>
     </div>
   </footer>
 
@@ -192,9 +204,10 @@
   <div id="toast"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="./scripts/script.js"></script>
+  <script src="scripts/script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./scripts/supabaseClient.js"></script>
-  <script src="./scripts/sessao.js"></script>
+  <script src="scripts/supabaseClient.js"></script>
+  <script src="scripts/sessao.js"></script>
+  <script src="scripts/depoimentos.js"></script>
 </body>
 </html>

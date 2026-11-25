@@ -54,6 +54,39 @@ if (telefoneInput) {
   });
 }
 
+// ==========================================
+// TIPO DE CONTA (cliente ou dono)
+// ==========================================
+
+// Devolve "cliente" ou "dono", conforme a opção marcada no formulário
+function pegarTipoConta() {
+  const marcada = document.querySelector('input[name="tipoConta"]:checked');
+  return marcada ? marcada.value : "cliente";
+}
+
+// Se a pessoa chegou por um link como cadastro.html?tipo=dono
+// (por exemplo, vindo da página "Para empresas"), já deixa "Dono" marcado
+function marcarTipoContaPelaUrl() {
+  const tipoDaUrl = new URLSearchParams(window.location.search).get("tipo");
+
+  if (tipoDaUrl !== "dono") {
+    return;
+  }
+
+  const opcaoDono = document.querySelector('input[name="tipoConta"][value="dono"]');
+  if (opcaoDono) {
+    opcaoDono.checked = true;
+  }
+
+  // Quem já tem conta e clicar em "Entrar" volta para completar o cadastro de dono
+  const linkLogin = document.getElementById("linkLogin");
+  if (linkLogin) {
+    linkLogin.href = "login.html?voltar=virar-dono.html";
+  }
+}
+
+marcarTipoContaPelaUrl();
+
 // Enviar cadastro
 if (cadastroForm) {
   cadastroForm.addEventListener("submit", async function (event) {
@@ -65,6 +98,7 @@ if (cadastroForm) {
     const telefone = telefoneInput.value.trim();
     const senha = senhaInput.value;
     const confirmarSenha = confirmarSenhaInput.value;
+    const tipoConta = pegarTipoConta();
 
     // Validações (iguais a antes)
     if (nomeDigitado === "") {
@@ -106,9 +140,14 @@ if (cadastroForm) {
     if (botaoEnviar) botaoEnviar.disabled = true;
 
     // 1) Cria o usuário no Supabase Auth (isso cuida de e-mail + senha)
+    // O tipo escolhido vai junto como "intenção" do usuário (options.data).
+    // Quem manda de verdade é a tabela "donos": só é dono quem tem uma linha lá.
     const { data, error } = await supabaseClient.auth.signUp({
       email: email,
-      password: senha
+      password: senha,
+      options: {
+        data: { tipo_conta: tipoConta }
+      }
     });
 
     if (error) {
@@ -144,13 +183,26 @@ if (cadastroForm) {
       return;
     }
 
-    mostrarToast(`Conta criada com sucesso! Agora faça login, ${nome}.`);
+    // Se o Supabase já entregou uma sessão (cadastro sem confirmação de e-mail),
+    // o dono segue direto para registrar o estabelecimento.
+    // Sem sessão (ex.: precisa confirmar o e-mail), ele passa pelo login e,
+    // ao entrar, o login.js o leva para essa mesma tela.
+    const temSessao = !!data.session;
+    let destino = "login.html";
+
+    if (tipoConta === "dono" && temSessao) {
+      destino = "virar-dono.html";
+      mostrarToast(`Conta criada, ${nome}! Agora cadastre o seu estabelecimento.`);
+    } else if (tipoConta === "dono") {
+      mostrarToast(`Conta criada, ${nome}! Faça login para cadastrar o seu estabelecimento.`);
+    } else {
+      mostrarToast(`Conta criada com sucesso! Agora faça login, ${nome}.`);
+    }
 
     cadastroForm.reset();
 
-    // Depois do cadastro, leva o usuário para a tela de login
     setTimeout(function () {
-      window.location.href = "login.html";
+      window.location.href = destino;
     }, 1400);
   });
 }

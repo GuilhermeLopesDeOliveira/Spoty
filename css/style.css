@@ -649,20 +649,15 @@ COMO FUNCIONA
 /* =========================================================
 FOOTER
 ========================================================= */
-div.container {
-  display: flex;
-  background: #0B1E33;
-}
-
 footer {
   background: var(--ink-900);
   color: rgba(255, 255, 255, .7);
-  padding: 64px clamp(20px, 5vw, 64px) 32px;
+  /* Fundo ocupa a largura toda; o conteúdo fica centralizado até --wrap */
+  --footer-pad: clamp(20px, 5vw, 64px);
+  padding: 64px max(var(--footer-pad), calc((100% - var(--wrap)) / 2 + var(--footer-pad))) 32px;
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr;
   gap: 40px;
-  margin: auto;
-  max-width: var(--wrap);
 }
 footer .logo {
   background: none;
@@ -1462,4 +1457,305 @@ PÁGINA "EDITAR INFORMAÇÕES"
   display: block;
   font-size: .85rem;
   color: var(--ink-400);
+}
+
+/* =========================================================
+CARROSSEL DE DEPOIMENTOS
+========================================================= */
+.depoimentos-carrossel {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 60px;
+}
+.depoimentos-janela {
+  overflow: hidden;
+  padding: 8px 0 28px;
+  margin: -8px 0 -28px;
+}
+.depoimentos-trilho {
+  display: flex;
+}
+.depoimentos-trilho .depoimento {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  box-shadow: var(--shadow-card);
+}
+.carrossel-seta {
+  position: absolute;
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 4px;
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  box-shadow: var(--shadow-card);
+  color: var(--blue-700);
+  font-size: 1.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.carrossel-seta[hidden] { display: none; }
+.carrossel-seta:hover,
+.carrossel-seta:focus-visible {
+  background: var(--blue-500);
+  border-color: var(--blue-500);
+  color: #fff;
+}
+.carrossel-seta-esq { left: 0; }
+.carrossel-seta-dir { right: 0; }
+
+@media (max-width: 580px) {
+  .depoimentos-carrossel { padding: 0 6px; }
+  .carrossel-seta {
+    top: auto;
+    bottom: -56px;
+    transform: none;
+  }
+  .carrossel-seta-esq { left: calc(50% - 54px); }
+  .carrossel-seta-dir { right: calc(50% - 54px); }
+  .depoimentos-janela { margin-bottom: 40px; }
+}
+
+/* Formulário "Deixar meu depoimento" */
+.feedback-area {
+  max-width: 520px;
+  margin: 40px auto 0;
+  text-align: center;
+}
+.feedback-form {
+  margin-top: 24px;
+  padding: 28px;
+  text-align: left;
+  background: var(--paper-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+}
+.feedback-form[hidden] { display: none; }
+.feedback-form textarea {
+  width: 100%;
+  padding: 13px 15px;
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  color: var(--ink-900);
+  font-family: var(--font-body);
+  font-size: .92rem;
+  resize: vertical;
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.feedback-form textarea:focus {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(30, 111, 235, .10);
+}
+.feedback-form small { text-align: right; }
+.feedback-nota { display: flex; gap: 4px; }
+.feedback-nota button {
+  padding: 0 2px;
+  background: none;
+  border: 0;
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--line);
+  cursor: pointer;
+  transition: color .15s ease, transform .15s ease;
+}
+.feedback-nota button:hover { transform: scale(1.12); }
+.feedback-nota button.ativa { color: var(--yellow-400); }
+.feedback-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.feedback-excluir {
+  margin-left: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  font-family: var(--font-body);
+  font-size: .85rem;
+  font-weight: 600;
+  color: #C0392B;
+  cursor: pointer;
+}
+.feedback-excluir[hidden] { display: none; }
+.feedback-excluir:hover { text-decoration: underline; }
+
+
+
+
+.depoimentos-vazio {
+  width: 100%;
+  margin: 0;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--ink-600);
+  font-size: 1rem;
+}
+
+
+/* =========================================================
+CLIENTE E DONO (escolha do tipo de conta, selo, painel)
+========================================================= */
+/* Atributo "hidden" precisa vencer o display definido nas classes abaixo */
+.user-dropdown-item[hidden],
+.selo-tipo[hidden] {
+  display: none;
+}
+
+/* ---- Escolha do tipo de conta (cadastro e documento do dono) ---- */
+.tipo-conta-bloco {
+  margin-bottom: 18px;
+}
+.tipo-conta-titulo {
+  margin: 0 0 7px;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--ink-900);
+}
+.tipo-conta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.tipo-conta-dica {
+  display: block;
+  margin-top: 8px;
+  font-size: .75rem;
+  line-height: 1.4;
+  color: var(--ink-400);
+}
+.tipo-opcao {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+/* O botão de rádio fica invisível; quem aparece é o cartão ao lado dele */
+.tipo-opcao input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.tipo-opcao-corpo {
+  display: block;
+  height: 100%;
+  padding: 14px;
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.tipo-opcao-corpo strong {
+  display: block;
+  font-size: .92rem;
+  color: var(--ink-900);
+}
+.tipo-opcao-corpo small {
+  display: block;
+  margin-top: 4px;
+  font-size: .76rem;
+  line-height: 1.4;
+  color: var(--ink-600);
+}
+.tipo-opcao:hover .tipo-opcao-corpo {
+  border-color: #bfd0e0;
+}
+.tipo-opcao input:checked + .tipo-opcao-corpo {
+  border-color: var(--blue-500);
+  background: var(--blue-100);
+  box-shadow: 0 0 0 3px rgba(30, 111, 235, .10);
+}
+.tipo-opcao input:focus-visible + .tipo-opcao-corpo {
+  outline: 2px solid var(--blue-500);
+  outline-offset: 2px;
+}
+@media (max-width: 420px) {
+  .tipo-conta {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Selo "Conta de cliente / Conta de dono" no menu do usuário ---- */
+.selo-tipo {
+  display: inline-block;
+  margin: 6px 0 0;
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: var(--green-100);
+  color: var(--ink-900);
+  font-size: .72rem;
+  font-weight: 600;
+}
+
+/* ---- Página "Virar dono" ---- */
+.dono-aviso {
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  border-radius: var(--radius-s);
+  background: var(--green-100);
+  color: var(--ink-900);
+  font-size: .85rem;
+  line-height: 1.5;
+}
+
+/* ---- Painel do dono ---- */
+.painel-grid {
+  display: grid;
+  gap: 20px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.painel-card {
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+}
+.painel-card h2 {
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.painel-dados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.painel-dados small {
+  display: block;
+  font-size: .75rem;
+  color: var(--ink-400);
+}
+.painel-dados strong {
+  display: block;
+  margin-top: 3px;
+  font-size: .95rem;
+  color: var(--ink-900);
+  word-break: break-word;
+}
+.painel-vazio {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--ink-600);
+  font-size: .95rem;
+  line-height: 1.5;
+}
+.painel-vazio .btn-principal {
+  margin-top: 16px;
+}
+.painel-vazio .btn-principal:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
 }

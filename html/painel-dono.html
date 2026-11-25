@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do dono — Spoty</title>
+  <link rel="icon" type="image/png" href="../imagens/logo.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <div class="page-transition active" aria-hidden="true"></div>
+
+  <header class="header">
+    <a class="logo" href="../index.html" onclick="transicaoPagina(event, this.href)">Spoty</a>
+    <nav>
+      <a href="../index.html#vagas">Buscar vagas</a>
+      <a href="../index.html#depoimentos">Depoimentos</a>
+      <a href="../index.html#como-funciona">Como funciona</a>
+    </nav>
+
+    <!-- O sessao.js precisa dos dois blocos abaixo para montar o cabeçalho.
+         Nesta página só o menu do usuário aparece (quem não está logado é redirecionado). -->
+    <div class="header-actions" id="headerActionsDeslogado" style="display: none;"></div>
+
+    <div class="user-menu" id="userMenuLogado" style="display: none;">
+      <button class="user-avatar" id="avatarBotao" onclick="alternarMenuUsuario()">--</button>
+
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-topo">
+          <div class="user-avatar user-avatar-grande" id="avatarGrande">--</div>
+          <div>
+            <strong id="dropdownNome">—</strong>
+            <span id="dropdownEmail">—</span>
+            <p class="selo-tipo" id="dropdownTipo" hidden></p>
+          </div>
+        </div>
+
+        <a href="painel-dono.html" id="menuDonoLink" class="user-dropdown-item" onclick="transicaoPagina(event, this.href)" hidden>
+          Meu painel de dono
+        </a>
+        <a href="editar-informacoes.html" class="user-dropdown-item" onclick="transicaoPagina(event, this.href)">
+          Editar informações
+        </a>
+        <button class="user-dropdown-item" onclick="sair()">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="section-heading">
+        <span class="eyebrow">Painel do dono</span>
+        <h1 id="painelTitulo">Seu painel</h1>
+        <p>Aqui você vai gerenciar seus estacionamentos no Spoty.</p>
+      </div>
+
+      <div class="painel-grid">
+
+        <div class="painel-card">
+          <h2>Dados do dono</h2>
+          <div class="painel-dados">
+            <div>
+              <small>Estabelecimento</small>
+              <strong id="painelNomeFantasia">—</strong>
+            </div>
+            <div>
+              <small id="painelDocumentoRotulo">Documento</small>
+              <strong id="painelDocumento">—</strong>
+            </div>
+            <div>
+              <small>Dono desde</small>
+              <strong id="painelDesde">—</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="painel-card">
+          <h2>Meus estabelecimentos</h2>
+          <div class="painel-vazio">
+            <p>Você ainda não cadastrou nenhum estacionamento.<br>Em breve esta área vai permitir cadastrar suas vagas e ver os pinos no mapa.</p>
+            <button type="button" class="btn-principal" disabled>Cadastrar estacionamento (em breve)</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../scripts/supabaseClient.js"></script>
+  <script src="../scripts/sessao.js"></script>
+  <script src="../scripts/painel-dono.js"></script>
+</body>
+</html>

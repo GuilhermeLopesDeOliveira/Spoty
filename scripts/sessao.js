@@ -20,6 +20,41 @@ function pegarIniciais(nome) {
   return (primeiraLetra + ultimaLetra).toUpperCase();
 }
 
+// Descobre se o usuário é dono: só é dono quem tem uma linha na tabela "donos".
+// Se a consulta falhar (ex.: tabela ainda não criada), trata como cliente.
+async function usuarioEhDono(usuarioId) {
+  const { data, error } = await supabaseClient
+    .from("donos")
+    .select("id")
+    .eq("id", usuarioId)
+    .maybeSingle();
+
+  return !error && !!data;
+}
+
+// Mostra "Cliente" ou "Dono" no menu e ajusta o link:
+// cliente -> "Quero ser dono" | dono -> "Meu painel de dono"
+function atualizarMenuTipoConta(ehDono) {
+  const selo = document.getElementById("dropdownTipo");
+  const link = document.getElementById("menuDonoLink");
+
+  if (selo) {
+    selo.textContent = ehDono ? "Conta de dono" : "Conta de cliente";
+    selo.hidden = false;
+  }
+
+  if (link) {
+    link.textContent = ehDono ? "Meu painel de dono" : "Quero ser dono";
+    const dentroDaPastaHtml = window.location.pathname.includes("/html/");
+  const prefixoPaginas = dentroDaPastaHtml ? "" : "html/";
+  link.setAttribute(
+    "href",
+    prefixoPaginas + (ehDono ? "painel-dono.html" : "virar-dono.html")
+  );
+    link.hidden = false;
+  }
+}
+
 // Olha se existe alguém logado e troca o que aparece no cabeçalho
 async function verificarSessao() {
   const areaDeslogado = document.getElementById("headerActionsDeslogado");
@@ -42,6 +77,7 @@ async function verificarSessao() {
       .maybeSingle();
 
     const nome = perfil ? perfil.nome : session.user.email;
+    const ehDono = await usuarioEhDono(session.user.id);
 
     areaDeslogado.style.display = "none";
     areaLogado.style.display = "block";
@@ -52,6 +88,8 @@ async function verificarSessao() {
     document.getElementById("avatarGrande").textContent = iniciais;
     document.getElementById("dropdownNome").textContent = nome;
     document.getElementById("dropdownEmail").textContent = session.user.email;
+
+    atualizarMenuTipoConta(ehDono);
   } else {
     areaDeslogado.style.display = "flex";
     areaLogado.style.display = "none";

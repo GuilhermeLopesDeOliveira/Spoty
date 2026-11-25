@@ -24,6 +24,39 @@ function alternarVisibilidadeSenha(idDoCampo, botao) {
 }
 
 // ==========================================
+// PARA ONDE IR DEPOIS DO LOGIN
+// ==========================================
+// - Veio de um link com ?voltar=virar-dono.html -> volta para lá.
+// - Escolheu "Dono" no cadastro mas ainda não preencheu os dados -> virar-dono.html.
+// - Qualquer outro caso -> tela inicial.
+
+async function descobrirDestinoAposLogin(usuario) {
+  const voltar = new URLSearchParams(window.location.search).get("voltar");
+
+  // Só aceita destinos conhecidos (evita redirecionar para qualquer endereço)
+  if (voltar === "virar-dono.html") {
+    return voltar;
+  }
+
+  const queriaSerDono = usuario && usuario.user_metadata && usuario.user_metadata.tipo_conta === "dono";
+
+  if (queriaSerDono) {
+    const { data: dono, error } = await supabaseClient
+      .from("donos")
+      .select("id")
+      .eq("id", usuario.id)
+      .maybeSingle();
+
+    // Se deu erro (ex.: tabela ainda não criada), segue para a tela inicial
+    if (!error && !dono) {
+      return "virar-dono.html";
+    }
+  }
+
+  return "../index.html";
+}
+
+// ==========================================
 // ENTRAR
 // ==========================================
 
@@ -47,7 +80,7 @@ if (loginForm) {
     const botaoEntrar = loginForm.querySelector(".cadastro-btn");
     if (botaoEntrar) botaoEntrar.disabled = true;
 
-    const { error } = await supabaseClient.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: email,
       password: senha
     });
@@ -60,9 +93,10 @@ if (loginForm) {
 
     mostrarToast("Login realizado! Entrando...");
 
-    // Volta para a tela inicial, agora logado
+    const destino = await descobrirDestinoAposLogin(data.user);
+
     setTimeout(function () {
-      window.location.href = "../index.html";
+      window.location.href = destino;
     }, 900);
   });
 }

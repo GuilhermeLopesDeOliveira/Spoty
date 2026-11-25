@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crie sua conta — Spoty</title>
+  <link rel="icon" type="image/png" href="../imagens/logo.png">
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -70,6 +71,28 @@
 
           <form id="cadastroForm">
 
+            <!-- Tipo de conta: cliente ou dono -->
+            <div class="tipo-conta-bloco">
+              <p class="tipo-conta-titulo" id="tipoContaTitulo">Como você quer usar o Spoty?</p>
+              <div class="tipo-conta" role="radiogroup" aria-labelledby="tipoContaTitulo">
+                <label class="tipo-opcao">
+                  <input type="radio" name="tipoConta" value="cliente" checked>
+                  <span class="tipo-opcao-corpo">
+                    <strong>Cliente</strong>
+                    <small>Quero encontrar vagas para estacionar.</small>
+                  </span>
+                </label>
+                <label class="tipo-opcao">
+                  <input type="radio" name="tipoConta" value="dono">
+                  <span class="tipo-opcao-corpo">
+                    <strong>Dono</strong>
+                    <small>Quero cadastrar meu estacionamento.</small>
+                  </span>
+                </label>
+              </div>
+              <small class="tipo-conta-dica">Mudou de ideia depois? Quem é cliente pode virar dono na mesma conta, sem criar outra.</small>
+            </div>
+
             <!-- Nome -->
             <div class="form-group">
               <label for="nome">Nome completo</label>
@@ -131,7 +154,7 @@
 
           <p class="login-text">
             Já possui uma conta?
-            <a href="login.html" onclick="transicaoPagina(event, this.href)">Entrar</a>
+            <a href="login.html" id="linkLogin" onclick="transicaoPagina(event, this.href)">Entrar</a>
           </p>
         </div>
 
